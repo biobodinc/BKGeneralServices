@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B&K Services</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#050505;color:white;}
+header{padding:15px;background:#0a0a0a;color:#0ff;font-size:20px;}
+.box{padding:20px;max-width:600px;margin:auto;}
+input,select{width:100%;padding:10px;margin:6px 0;background:black;color:white;border:1px solid #0ff;}
+.btn{padding:10px;border:1px solid #0ff;background:transparent;color:#0ff;cursor:pointer;width:100%;}
+.btn:hover{background:#0ff;color:black;}
+.card{padding:10px;background:#111;margin-top:10px;border-radius:8px;}
+small{color:#aaa;}
+</style>
+</head>
+
+<body>
+
+<header>B&K General Services</header>
+
+<div class="box">
+
+<h3>Login / Email</h3>
+<input id="email" placeholder="Email">
+
+<h3>Book a Service</h3>
+
+<select id="service">
+<option>Lawn Care</option>
+<option>Cleaning</option>
+<option>Repairs</option>
+<option>Moving Help</option>
+</select>
+
+<input id="date" type="date">
+<input id="location" placeholder="Address / Location">
+<input id="notes" placeholder="Notes">
+
+<h3>Payment</h3>
+<select id="payment">
+<option value="prepay">Pay Online (Square Secure Checkout)</option>
+<option value="inperson">Pay In Person</option>
+</select>
+
+<button class="btn" id="submit">Continue</button>
+
+<small>Secure checkout powered by Square</small>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDc6v1U42EpVuwOzzLGKFCFMVxlOgAgz5U",
+  authDomain: "bk-general-services.firebaseapp.com",
+  projectId: "bk-general-services",
+  storageBucket: "bk-general-services.firebasestorage.app",
+  messagingSenderId: "791556596526",
+  appId: "1:791556596526:web:a483db7b4454c1f44310bf"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* Square checkout link (replace later) */
+const squareCheckoutURL = "https://square.link/u/YOUR_CHECKOUT";
+
+document.getElementById("submit").onclick = async () => {
+
+const booking = {
+email: email.value,
+service: service.value,
+date: date.value,
+location: location.value,
+notes: notes.value,
+payment: payment.value,
+status: "pending",
+createdAt: new Date().toISOString()
+};
+
+await addDoc(collection(db,"bookings"),booking);
+
+/* Redirect to Square for safety perception */
+if(payment.value === "prepay"){
+window.location.href = squareCheckoutURL;
+} else {
+alert("Booking received. Pay in person.");
+}
+
+};
+
+</script>
+
+</body>
+</html>
