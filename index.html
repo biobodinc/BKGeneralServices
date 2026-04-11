@@ -72,24 +72,34 @@ const squareCheckoutURL = "https://square.link/u/YTVI8cTL";
 
 document.getElementById("submit").onclick = async () => {
 
+try {
+
 const booking = {
-email: email.value,
-service: service.value,
-date: date.value,
-location: location.value,
-notes: notes.value,
-payment: payment.value,
-status: "pending",
-createdAt: new Date().toISOString()
+  email: email.value,
+  service: service.value,
+  date: date.value,
+  location: location.value,
+  notes: notes.value,
+  payment: payment.value,
+  status: "pending",
+  createdAt: new Date().toISOString()
 };
 
-await addDoc(collection(db,"bookings"),booking);
+/* 🔥 WAIT for Firebase to save */
+await addDoc(collection(db,"bookings"), booking);
 
-/* Redirect to Square for safety perception */
+console.log("Saved to Firebase");
+
+/* THEN redirect */
 if(payment.value === "prepay"){
-window.location.href = squareCheckoutURL;
+  window.location.href = "https://square.link/u/YOUR_LINK";
 } else {
-alert("Booking received. Pay in person.");
+  alert("Booking saved. Pay in person.");
+}
+
+} catch(err){
+  console.error(err);
+  alert("Error saving booking: " + err.message);
 }
 
 };
