@@ -78,7 +78,7 @@ const booking = {
   email: email.value,
   service: service.value,
   date: date.value,
-  location: location.value,
+  location: document.getElementById("location")?.value || "",
   notes: notes.value,
   payment: payment.value,
   status: "pending",
