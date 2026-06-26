@@ -1,106 +1,837 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>B&K Services</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>B&amp;K General Services — Local help, booked in a minute</title>
+<meta name="description" content="Lawn care, cleaning, repairs, and moving help in Saratoga Springs and the north Utah Valley. Book a local pro in under a minute." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
 <style>
-body{margin:0;font-family:Arial;background:#050505;color:white;}
-header{padding:15px;background:#0a0a0a;color:#0ff;font-size:20px;}
-.box{padding:20px;max-width:600px;margin:auto;}
-input,select{
-width:100%;padding:10px;margin:6px 0;
-background:black;color:white;border:1px solid #0ff;
-}
-.btn{
-width:100%;padding:10px;
-border:1px solid #0ff;
-background:transparent;
-color:#0ff;
-cursor:pointer;
-}
-.btn:hover{background:#0ff;color:black;}
-small{color:#aaa;}
+  :root {
+    /* Palette — warm, grounded "field-ready" identity */
+    --ink:      #17211b;  /* deep warm forest near-black */
+    --ink-soft: #24332a;
+    --paper:    #f6f2e9;  /* warm paper page bg */
+    --card:     #ffffff;
+    --marigold: #f4a300;  /* primary accent — energy, high-vis */
+    --marigold-deep: #d98c00;
+    --rust:     #b9461f;  /* secondary warm accent */
+    --moss:     #2f5d3e;  /* deep green, used sparingly */
+    --line:     #e4dccb;  /* hairline on paper */
+    --line-ink: #36473b;  /* hairline on ink */
+    --muted:    #6f6757;  /* muted body text */
+    --muted-ink:#aab6ab;  /* muted text on ink */
+    --danger:   #b3261e;
+
+    --radius:   16px;
+    --radius-sm:11px;
+    --shadow:   0 1px 2px rgba(23,33,27,.06), 0 12px 30px -12px rgba(23,33,27,.22);
+    --shadow-lg:0 30px 60px -24px rgba(23,33,27,.45);
+    --ease:     cubic-bezier(.2,.7,.2,1);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Hanken Grotesk", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 {
+    font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 22px;
+  }
+
+  /* ---------------- Top bar ---------------- */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--paper) 86%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 66px;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    text-decoration: none;
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+  .brand__mark {
+    font-weight: 800;
+    font-size: 25px;
+    letter-spacing: -0.03em;
+  }
+  .brand__mark .amp { color: var(--rust); }
+  .brand__sub {
+    font-family: "Hanken Grotesk", sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .locale {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .locale svg { color: var(--moss); flex: none; }
+
+  .topbar__right { display: flex; align-items: center; gap: 16px; }
+  .callbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    background: var(--marigold);
+    color: #20160a;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 9px 15px;
+    border-radius: 999px;
+    box-shadow: 0 8px 18px -10px rgba(244,163,0,.8);
+    transition: transform .15s var(--ease), background .2s var(--ease);
+  }
+  .callbtn:hover { background: #ffb41f; transform: translateY(-1px); }
+  .callbtn svg { flex: none; }
+
+  /* ---------------- Hero ---------------- */
+  .hero { padding: 56px 0 30px; }
+  .hero__panel {
+    position: relative;
+    overflow: hidden;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 26px;
+    padding: clamp(30px, 5vw, 60px);
+    box-shadow: var(--shadow-lg);
+  }
+  /* signature glow + faint job-site grid */
+  .hero__panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 130% at 88% -10%, rgba(244,163,0,.30), transparent 46%),
+      radial-gradient(80% 80% at 0% 120%, rgba(47,93,62,.34), transparent 55%);
+    pointer-events: none;
+  }
+  .hero__panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--line-ink) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-ink) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: linear-gradient(120deg, transparent 40%, #000 110%);
+            mask-image: linear-gradient(120deg, transparent 40%, #000 110%);
+    opacity: .35;
+    pointer-events: none;
+  }
+  .hero__content { position: relative; max-width: 660px; }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--marigold);
+    margin-bottom: 22px;
+  }
+  .eyebrow .tick {
+    width: 22px; height: 2px; background: var(--marigold); display: inline-block;
+  }
+  .hero h1 {
+    font-size: clamp(40px, 6.6vw, 70px);
+    letter-spacing: -0.035em;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--marigold);
+  }
+  .hero__sub {
+    margin: 22px 0 0;
+    font-size: clamp(17px, 2.1vw, 20px);
+    color: var(--muted-ink);
+    max-width: 540px;
+  }
+  .hero__actions {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 22px;
+  }
+  .hero__trust {
+    display: block;
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted-ink);
+  }
+
+  .btn {
+    font-family: "Hanken Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    border-radius: 999px;
+    padding: 15px 26px;
+    cursor: pointer;
+    transition: transform .15s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn--primary {
+    background: var(--marigold);
+    color: #20160a;
+    box-shadow: 0 10px 24px -10px rgba(244,163,0,.7);
+  }
+  .btn--primary:hover { background: #ffb41f; transform: translateY(-2px); }
+  .btn--primary:active { transform: translateY(0); }
+  .btn--primary svg { transition: transform .2s var(--ease); }
+  .btn--primary:hover svg { transform: translateX(3px); }
+  .btn--call {
+    background: transparent;
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,.35);
+  }
+  .btn--call:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); transform: translateY(-2px); }
+  .btn--call svg { color: var(--marigold); }
+
+  /* ---------------- Booking section ---------------- */
+  .booking { padding: 40px 0 30px; }
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+  .section-head h2 {
+    font-size: clamp(27px, 3.6vw, 38px);
+  }
+  .section-head p {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 15.5px;
+  }
+  .step {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: clamp(22px, 3.4vw, 34px);
+  }
+
+  /* Service tiles — the signature element */
+  .services {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+  .tile {
+    position: relative;
+    text-align: left;
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 18px 16px 16px;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    transition: border-color .18s var(--ease), transform .18s var(--ease), box-shadow .18s var(--ease), background .18s var(--ease);
+  }
+  .tile:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: #d7cdb8; }
+  .tile__icon {
+    width: 42px; height: 42px;
+    border-radius: 11px;
+    display: grid; place-items: center;
+    background: #f3efe4;
+    color: var(--moss);
+    margin-bottom: 14px;
+    transition: background .18s var(--ease), color .18s var(--ease);
+  }
+  .tile__name {
+    font-family: "Bricolage Grotesque", sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+  }
+  .tile__desc {
+    margin: 5px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  .tile__check {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--marigold);
+    color: #20160a;
+    display: grid; place-items: center;
+    opacity: 0;
+    transform: scale(.6);
+    transition: opacity .18s var(--ease), transform .18s var(--ease);
+  }
+  .tile[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: #fffdf7;
+    box-shadow: 0 0 0 1.5px var(--ink), var(--shadow);
+  }
+  .tile[aria-pressed="true"] .tile__icon { background: var(--ink); color: var(--marigold); }
+  .tile[aria-pressed="true"] .tile__check { opacity: 1; transform: scale(1); }
+
+  /* Form */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 18px;
+  }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field--full { grid-column: 1 / -1; }
+  label.lbl {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  label .opt { color: var(--muted); font-weight: 500; }
+  .input {
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--ink);
+    background: #fbf9f3;
+    border: 1.5px solid var(--line);
+    border-radius: 11px;
+    padding: 13px 14px;
+    transition: border-color .15s var(--ease), box-shadow .15s var(--ease), background .15s var(--ease);
+    width: 100%;
+  }
+  .input::placeholder { color: #a59c89; }
+  .input:hover { border-color: #d7cdb8; }
+  .input:focus {
+    outline: none;
+    background: #fff;
+    border-color: var(--marigold-deep);
+    box-shadow: 0 0 0 4px rgba(244,163,0,.18);
+  }
+  textarea.input { resize: vertical; min-height: 84px; line-height: 1.5; }
+
+  /* Payment segmented toggle */
+  .pay {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    background: #f3efe4;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 5px;
+  }
+  .pay__opt {
+    position: relative;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    padding: 11px 10px;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color .15s var(--ease), background .15s var(--ease), box-shadow .15s var(--ease);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .pay__opt[aria-pressed="true"] {
+    background: var(--ink);
+    color: #fff;
+    box-shadow: var(--shadow);
+  }
+  .pay__opt[aria-pressed="true"] svg { color: var(--marigold); }
+
+  .submit-row {
+    margin-top: 26px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .btn--submit {
+    background: var(--ink);
+    color: #fff;
+    padding: 16px 30px;
+    font-size: 16.5px;
+    box-shadow: 0 14px 30px -14px rgba(23,33,27,.6);
+  }
+  .btn--submit:hover:not(:disabled) { background: var(--ink-soft); transform: translateY(-2px); }
+  .btn--submit:disabled { opacity: .7; cursor: progress; }
+  .secure {
+    font-size: 13px;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .secure svg { color: var(--moss); }
+
+  .spinner {
+    width: 17px; height: 17px;
+    border: 2.5px solid rgba(255,255,255,.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .formerror {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 15px;
+    border-radius: 11px;
+    background: #fdecea;
+    border: 1px solid #f3c7c2;
+    color: var(--danger);
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+  .formerror--show { display: block; }
+
+  /* Success panel */
+  .success {
+    display: none;
+    text-align: center;
+    padding: 18px 10px 6px;
+  }
+  .success--show { display: block; animation: rise .5s var(--ease) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .success__badge {
+    width: 64px; height: 64px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: var(--moss);
+    color: #fff;
+    display: grid; place-items: center;
+    box-shadow: 0 12px 26px -10px rgba(47,93,62,.7);
+  }
+  .success h3 { font-size: 26px; margin-bottom: 8px; }
+  .success p { color: var(--muted); margin: 0 auto; max-width: 380px; }
+  .success__again {
+    margin-top: 22px;
+    background: transparent;
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 12px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color .15s var(--ease), background .15s var(--ease);
+  }
+  .success__again:hover { border-color: var(--ink); background: #faf7f0; }
+
+  /* ---------------- Footer ---------------- */
+  .foot {
+    border-top: 1px solid var(--line);
+    margin-top: 30px;
+    padding: 26px 0 40px;
+  }
+  .foot__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+  .foot__brand { font-weight: 700; color: var(--ink); }
+
+  /* Visible keyboard focus everywhere */
+  :focus-visible {
+    outline: 3px solid var(--marigold-deep);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* ---------------- Responsive ---------------- */
+  @media (max-width: 760px) {
+    body { font-size: 16px; }
+    .services { grid-template-columns: 1fr 1fr; }
+    .field-grid { grid-template-columns: 1fr; }
+    .brand__sub { display: none; }
+    .hero { padding: 30px 0 18px; }
+  }
+  @media (max-width: 520px) {
+    .locale { display: none; }
+    .callbtn__num { display: none; }
+    .callbtn { padding: 9px; }
+  }
+  @media (max-width: 430px) {
+    .services { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
 </style>
 </head>
-
 <body>
 
-<header>B&K General Services</header>
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a class="brand" href="/" aria-label="B&amp;K General Services home">
+        <span class="brand__mark">B<span class="amp">&amp;</span>K</span>
+        <span class="brand__sub">General Services</span>
+      </a>
+      <div class="topbar__right">
+        <span class="locale">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          Saratoga Springs, UT
+        </span>
+        <a class="callbtn" href="tel:+17145949526" aria-label="Call to book: (714) 594-9526">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 11.5a16 16 0 0 0 6 6l1-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2Z"/></svg>
+          <span class="callbtn__num">(714) 594-9526</span>
+        </a>
+      </div>
+    </div>
+  </header>
 
-<div class="box">
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero__panel">
+          <div class="hero__content">
+            <span class="eyebrow"><span class="tick"></span> Local · Reliable · On call</span>
+            <h1>Local help for the jobs you'd <em>rather not do.</em></h1>
+            <p class="hero__sub">Lawn care, cleaning, repairs, and moving help — booked in under a minute and handled by people right around the corner.</p>
+            <div class="hero__actions">
+              <a class="btn btn--primary" href="#book">
+                Book a service
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <a class="btn btn--call" href="tel:+17145949526">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 11.5a16 16 0 0 0 6 6l1-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2Z"/></svg>
+                Call (714) 594-9526
+              </a>
+            </div>
+            <span class="hero__trust">Serving Saratoga Springs &amp; the north Utah Valley</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<h3>Book a Service</h3>
+    <!-- BOOKING -->
+    <section class="booking" id="book">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <span class="step">Step 1 — Pick a service</span>
+            <h2>What can we take off your plate?</h2>
+            <p>Choose a service, tell us where and when, and we'll line up the right person.</p>
+          </div>
+        </div>
 
-<input id="email" placeholder="Email">
-<input id="phone" placeholder="Phone Number">
+        <!-- Service tiles (the selector) -->
+        <div class="services" role="group" aria-label="Choose a service">
+          <button type="button" class="tile" data-service="Lawn Care" aria-pressed="true">
+            <span class="tile__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20v-4M9 20v-6M13 20v-4M17 20v-7"/><path d="M5 12c0-3 2-5 2-5M9 9c0-3 2-5 2-5M13 11c0-3 2-5 2-5"/></svg>
+            </span>
+            <span class="tile__name">Lawn Care</span>
+            <p class="tile__desc">Mowing, trimming, and cleanup that keeps the yard sharp.</p>
+            <span class="tile__check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg></span>
+          </button>
 
-<select id="service">
-<option>Lawn Care</option>
-<option>Cleaning</option>
-<option>Repairs</option>
-<option>Moving Help</option>
-</select>
+          <button type="button" class="tile" data-service="Cleaning" aria-pressed="false">
+            <span class="tile__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 4l-7 7"/><path d="M14 3l3 3"/><path d="M8 12l4 4"/><path d="M4 20l4-8 8 4-4 8a2 2 0 0 1-1 1l-6 1 1-6a2 2 0 0 1 1-1Z"/></svg>
+            </span>
+            <span class="tile__name">Cleaning</span>
+            <p class="tile__desc">Homes and spaces left properly tidy, top to bottom.</p>
+            <span class="tile__check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg></span>
+          </button>
 
-<input id="date" type="date">
-<input id="location" placeholder="Address / Location">
-<input id="notes" placeholder="Notes (optional)">
+          <button type="button" class="tile" data-service="Repairs" aria-pressed="false">
+            <span class="tile__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 18v3h3l6.5-6.3a4 4 0 0 0 5.2-5.4l-2.7 2.7-2.5-.5-.5-2.5 2.9-2.9Z"/></svg>
+            </span>
+            <span class="tile__name">Repairs</span>
+            <p class="tile__desc">The small fixes and odd jobs that keep piling up.</p>
+            <span class="tile__check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg></span>
+          </button>
 
-<select id="payment">
-<option value="prepay">Pay Online (Square)</option>
-<option value="inperson">Pay In Person</option>
-</select>
+          <button type="button" class="tile" data-service="Moving Help" aria-pressed="false">
+            <span class="tile__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h11v9H3z"/><path d="M14 11h4l3 3v3h-7z"/><circle cx="7" cy="19" r="1.6"/><circle cx="17" cy="19" r="1.6"/></svg>
+            </span>
+            <span class="tile__name">Moving Help</span>
+            <p class="tile__desc">An extra set of hands for lifting, hauling, and loading.</p>
+            <span class="tile__check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg></span>
+          </button>
+        </div>
 
-<button class="btn" id="submit">Submit Booking</button>
+        <!-- The form card -->
+        <div class="panel">
+          <!-- Form view -->
+          <div id="formView">
+            <span class="step">Step 2 — Your details</span>
+            <h2 style="font-size:23px; margin-bottom:20px;">Where and when?</h2>
 
-<small>Secure checkout powered by Square</small>
+            <div class="field-grid">
+              <div class="field">
+                <label class="lbl" for="name">Name <span class="opt">(optional)</span></label>
+                <input class="input" id="name" type="text" autocomplete="name" placeholder="Jordan Smith" />
+              </div>
+              <div class="field">
+                <label class="lbl" for="phone">Phone</label>
+                <input class="input" id="phone" type="tel" autocomplete="tel" placeholder="(801) 555-0134" />
+              </div>
+              <div class="field">
+                <label class="lbl" for="email">Email</label>
+                <input class="input" id="email" type="email" autocomplete="email" placeholder="you@email.com" />
+              </div>
+              <div class="field">
+                <label class="lbl" for="date">Preferred date</label>
+                <input class="input" id="date" type="date" />
+              </div>
+              <div class="field field--full">
+                <label class="lbl" for="location">Service address</label>
+                <input class="input" id="location" type="text" autocomplete="street-address" placeholder="Street address, city" />
+              </div>
+              <div class="field field--full">
+                <label class="lbl" for="notes">Notes <span class="opt">(optional)</span></label>
+                <textarea class="input" id="notes" placeholder="Gate code, what needs doing, anything we should know…"></textarea>
+              </div>
+              <div class="field field--full">
+                <label class="lbl">How would you like to pay?</label>
+                <div class="pay" role="group" aria-label="Payment method">
+                  <button type="button" class="pay__opt" data-payment="prepay" aria-pressed="false">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    Pay online
+                  </button>
+                  <button type="button" class="pay__opt" data-payment="inperson" aria-pressed="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Pay in person
+                  </button>
+                </div>
+              </div>
+            </div>
 
-</div>
+            <div class="submit-row">
+              <button type="button" class="btn btn--submit" id="submit">
+                <span class="spinner" id="spinner"></span>
+                <span id="submitLabel">Request booking</span>
+              </button>
+              <span class="secure">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                Online payments secured by Square
+              </span>
+            </div>
+
+            <div class="formerror" id="formError" role="alert"></div>
+          </div>
+
+          <!-- Success view -->
+          <div class="success" id="successView" aria-live="polite">
+            <div class="success__badge">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg>
+            </div>
+            <h3>Booking requested</h3>
+            <p id="successMsg">Thanks! We've got your request and we'll reach out shortly to confirm a time.</p>
+            <button type="button" class="success__again" id="again">Book another service</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot__inner">
+      <span><span class="foot__brand">B&amp;K General Services</span> — Saratoga Springs, Utah</span>
+      <span>&copy; <span id="year"></span> B&amp;K General Services</span>
+    </div>
+  </footer>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDc6v1U42EpVuwOzzLGKFCFMVxlOgAgz5U",
-  authDomain: "bk-general-services.firebaseapp.com",
-  projectId: "bk-general-services",
-  storageBucket: "bk-general-services.firebasestorage.app",
-  messagingSenderId: "791556596526",
-  appId: "1:791556596526:web:a483db7b4454c1f44310bf"
-};
+  // ---- Config -------------------------------------------------------------
+  const SUPABASE_URL = "https://dcstdsibvywmythzkltn.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_GjzKPuQKqeUPkyaryyyuSg_Q7LbAra8"; // public-safe
+  const SQUARE_LINK  = "https://square.link/u/YTVI8cTL";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const squareLink = "https://square.link/u/YTVI8cTL";
+  // ---- Small DOM helpers --------------------------------------------------
+  const $  = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-document.getElementById("submit").onclick = async () => {
+  const state = { service: "Lawn Care", payment: "inperson" };
 
-const booking = {
-email: email.value || "",
-phone: phone.value || "",
-service: service.value,
-date: date.value || "",
-location: document.getElementById("location")?.value || "",
-notes: notes.value || "",
-payment: payment.value,
-status: "pending",
-createdAt: new Date().toISOString()
-};
+  // ---- Single-select button groups (services + payment) -------------------
+  function wireGroup(selector, onSelect) {
+    const buttons = $$(selector);
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        buttons.forEach((b) => b.setAttribute("aria-pressed", "false"));
+        btn.setAttribute("aria-pressed", "true");
+        onSelect(btn);
+      });
+    });
+  }
 
-await addDoc(collection(db,"bookings"), booking);
+  wireGroup(".tile", (btn) => { state.service = btn.dataset.service; });
 
-if(payment.value === "prepay"){
-window.location.href = squareLink;
-} else {
-alert("Booking saved. Pay in person.");
-}
+  wireGroup(".pay__opt", (btn) => {
+    state.payment = btn.dataset.payment;
+    $("#submitLabel").textContent =
+      state.payment === "prepay" ? "Continue to payment" : "Request booking";
+  });
 
-};
+  // ---- Validation ---------------------------------------------------------
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  function validate(data) {
+    if (!data.location) return "Please add the service address.";
+    if (!data.service_date) return "Please choose a preferred date.";
+    if (!data.email && !data.phone) return "Add a phone number or email so we can reach you.";
+    if (data.email && !EMAIL_RE.test(data.email)) return "That email doesn't look right — mind checking it?";
+    return null;
+  }
+
+  function showError(msg) {
+    const el = $("#formError");
+    el.textContent = msg;
+    el.classList.add("formerror--show");
+  }
+  function clearError() {
+    $("#formError").classList.remove("formerror--show");
+  }
+
+  // ---- Submit -------------------------------------------------------------
+  function setLoading(on) {
+    $("#submit").disabled = on;
+    $("#spinner").style.display = on ? "block" : "none";
+    $("#submitLabel").textContent = on
+      ? "Sending…"
+      : (state.payment === "prepay" ? "Continue to payment" : "Request booking");
+  }
+
+  async function handleSubmit() {
+    clearError();
+
+    const booking = {
+      name:         $("#name").value.trim()     || null,
+      email:        $("#email").value.trim()    || null,
+      phone:        $("#phone").value.trim()    || null,
+      service:      state.service,
+      service_date: $("#date").value            || null,
+      location:     $("#location").value.trim() || null,
+      notes:        $("#notes").value.trim()    || null,
+      payment:      state.payment,
+      status:       "pending",
+    };
+
+    const problem = validate(booking);
+    if (problem) { showError(problem); return; }
+
+    setLoading(true);
+    const { error } = await supabase.from("bookings").insert([booking]);
+    setLoading(false);
+
+    if (error) {
+      console.error("Booking save failed:", error);
+      showError("Something went wrong saving your booking. Please try again in a moment.");
+      return;
+    }
+
+    if (booking.payment === "prepay") {
+      window.location.href = SQUARE_LINK;
+      return;
+    }
+
+    // Pay-in-person → inline confirmation
+    $("#successMsg").textContent =
+      `Thanks${booking.name ? ", " + booking.name : ""}! Your ${booking.service} request is in — we'll reach out shortly to confirm a time. Pay in person when the job's done.`;
+    $("#formView").style.display = "none";
+    $("#successView").classList.add("success--show");
+    $("#successView").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  $("#submit").addEventListener("click", handleSubmit);
+
+  // ---- Reset for another booking -----------------------------------------
+  $("#again").addEventListener("click", () => {
+    ["name", "email", "phone", "date", "location", "notes"].forEach((id) => { $("#" + id).value = ""; });
+    $("#successView").classList.remove("success--show");
+    $("#formView").style.display = "block";
+    $("#formView").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // ---- Footer year --------------------------------------------------------
+  $("#year").textContent = new Date().getFullYear();
 </script>
-
 </body>
 </html>
