@@ -11,7 +11,6 @@ async function sb(path, init = {}) {
     ...init,
     headers: {
       apikey: SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
       "Content-Type": "application/json",
       ...(init.headers || {}),
     },
