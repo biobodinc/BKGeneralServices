@@ -64,12 +64,42 @@ export default async function handler(req, res) {
       from: FROM_EMAIL,
       to: [email],
       subject: `Your B&K verification code: ${code}`,
-      html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:8px">
-          <h2 style="color:#17211b;margin:0 0 6px">B&amp;K General Services</h2>
-          <p style="color:#333">Use this code to confirm your booking:</p>
-          <p style="font-size:34px;font-weight:bold;letter-spacing:8px;color:#17211b;margin:14px 0">${code}</p>
-          <p style="color:#6f6757;font-size:14px">This code expires in 10 minutes. If you didn't request it, you can ignore this email.</p>
-        </div>`,
+      html: `
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your B&amp;K verification code is ${code} — expires in 10 minutes.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f2e9;margin:0;padding:0;">
+  <tr>
+    <td align="center" style="padding:34px 16px;">
+      <table role="presentation" width="468" cellpadding="0" cellspacing="0" style="width:468px;max-width:468px;">
+        <tr>
+          <td align="center" style="padding-bottom:20px;">
+            <img src="https://bk-general-services.vercel.app/logo.png" width="88" height="88" alt="B&amp;K General Services" style="display:block;width:88px;height:88px;border:0;outline:none;text-decoration:none;border-radius:50%;" />
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#ffffff;border:1px solid #e4dccb;border-radius:16px;padding:34px 32px;font-family:Helvetica,Arial,sans-serif;">
+            <h1 style="margin:0 0 8px;font-size:22px;line-height:1.25;color:#17211b;font-weight:bold;">Confirm your booking</h1>
+            <p style="margin:0 0 24px;font-size:15px;line-height:1.5;color:#5c564b;">Enter this code on the booking page to verify your email and finish up.</p>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="background-color:#fbf7ee;border:1px solid #f0e4c8;border-radius:12px;padding:24px 12px;">
+                  <span style="font-size:38px;font-weight:bold;letter-spacing:12px;color:#17211b;font-family:'Courier New',Courier,monospace;padding-left:12px;">${code}</span>
+                </td>
+              </tr>
+            </table>
+            <div style="height:3px;width:48px;background-color:#f4a300;border-radius:2px;margin:26px 0 18px;font-size:0;line-height:0;">&nbsp;</div>
+            <p style="margin:0;font-size:14px;line-height:1.5;color:#6f6757;">This code expires in <strong style="color:#17211b;">10 minutes</strong>. Didn't request it? You can safely ignore this email.</p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:22px 8px 0;font-family:Helvetica,Arial,sans-serif;">
+            <p style="margin:0 0 4px;font-size:13px;font-weight:bold;color:#17211b;">B&amp;K General Services</p>
+            <p style="margin:0;font-size:12px;line-height:1.5;color:#9a917f;">Lawn care &middot; Cleaning &middot; Repairs &middot; Moving help &mdash; Saratoga Springs, UT</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`,
     });
 
     if (error) {
