@@ -114,6 +114,14 @@
   .locale svg { color: var(--moss); flex: none; }
 
   .topbar__right { display: flex; align-items: center; gap: 16px; }
+  .tracklink {
+    text-decoration: none;
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 14px;
+    transition: color .15s var(--ease);
+  }
+  .tracklink:hover { color: var(--ink); }
   .callbtn {
     display: inline-flex;
     align-items: center;
@@ -455,6 +463,39 @@
   }
   .formerror--show { display: block; }
 
+  /* Verification step */
+  .verify { display: none; }
+  .verify--show { display: block; animation: rise .4s var(--ease) both; }
+  .verify__back {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: 14px;
+    color: var(--muted); padding: 0; margin-bottom: 16px;
+    transition: color .15s var(--ease);
+  }
+  .verify__back:hover { color: var(--ink); }
+  .verify__lead { color: var(--muted); margin: 0 0 18px; font-size: 15px; }
+  .verify__lead strong { color: var(--ink); }
+  .code-input {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    text-align: center;
+    padding: 16px 14px;
+    max-width: 260px;
+    font-variant-numeric: tabular-nums;
+  }
+  .linklike {
+    background: transparent; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 700; font-size: 14px;
+    color: var(--marigold-deep); padding: 8px 4px;
+    transition: color .15s var(--ease);
+  }
+  .linklike:hover { color: var(--rust); text-decoration: underline; }
+  .verify__note { color: var(--moss); font-size: 14px; font-weight: 600; min-height: 18px; margin-top: 8px; }
+  #nextArrow { transition: transform .2s var(--ease); }
+  #next:hover #nextArrow { transform: translateX(3px); }
+
   /* Success panel */
   .success {
     display: none;
@@ -473,9 +514,16 @@
     box-shadow: 0 12px 26px -10px rgba(47,93,62,.7);
   }
   .success h3 { font-size: 26px; margin-bottom: 8px; }
-  .success p { color: var(--muted); margin: 0 auto; max-width: 380px; }
+  .success p { color: var(--muted); margin: 0 auto; max-width: 400px; }
+  .success__actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .success__actions .btn--primary { text-decoration: none; }
   .success__again {
-    margin-top: 22px;
     background: transparent;
     border: 1.5px solid var(--line);
     color: var(--ink);
@@ -505,6 +553,8 @@
     font-size: 13.5px;
   }
   .foot__brand { font-weight: 700; color: var(--ink); }
+  .foot__link { color: var(--muted); text-decoration: none; font-weight: 700; }
+  .foot__link:hover { color: var(--ink); text-decoration: underline; }
 
   /* Visible keyboard focus everywhere */
   :focus-visible {
@@ -520,6 +570,9 @@
     .field-grid { grid-template-columns: 1fr; }
     .brand__sub { display: none; }
     .hero { padding: 30px 0 18px; }
+  }
+  @media (max-width: 620px) {
+    .tracklink { display: none; }
   }
   @media (max-width: 520px) {
     .locale { display: none; }
@@ -544,6 +597,7 @@
         <span class="brand__sub">General Services</span>
       </a>
       <div class="topbar__right">
+        <a class="tracklink" href="/status.html">Track a booking</a>
         <span class="locale">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           Saratoga Springs, UT
@@ -645,7 +699,7 @@
                 <input class="input" id="name" type="text" autocomplete="name" placeholder="Jordan Smith" />
               </div>
               <div class="field">
-                <label class="lbl" for="phone">Phone</label>
+                <label class="lbl" for="phone">Phone <span class="opt">(optional)</span></label>
                 <input class="input" id="phone" type="tel" autocomplete="tel" placeholder="(801) 555-0134" />
               </div>
               <div class="field">
@@ -680,17 +734,39 @@
             </div>
 
             <div class="submit-row">
-              <button type="button" class="btn btn--submit" id="submit">
+              <button type="button" class="btn btn--submit" id="next">
                 <span class="spinner" id="spinner"></span>
-                <span id="submitLabel">Request booking</span>
+                <span id="nextLabel">Next</span>
+                <svg id="nextArrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
               </button>
               <span class="secure">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                Online payments secured by Square
+                We'll email you a code to confirm it's you
               </span>
             </div>
 
             <div class="formerror" id="formError" role="alert"></div>
+          </div>
+
+          <!-- Verification view -->
+          <div class="verify" id="verifyView">
+            <button type="button" class="verify__back" id="back">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+              Back to details
+            </button>
+            <span class="step">Step 3 — Confirm it's you</span>
+            <h2 style="font-size:23px; margin:6px 0 8px;">Enter your code</h2>
+            <p class="verify__lead">We emailed a 6-digit code to <strong id="verifyEmail"></strong>. It expires in 10 minutes.</p>
+            <input class="input code-input" id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" aria-label="6-digit verification code" />
+            <div class="submit-row">
+              <button type="button" class="btn btn--submit" id="verify">
+                <span class="spinner" id="vspinner"></span>
+                <span id="verifyLabel">Verify &amp; book</span>
+              </button>
+              <button type="button" class="linklike" id="resend">Resend code</button>
+            </div>
+            <div class="verify__note" id="verifyNote"></div>
+            <div class="formerror" id="verifyError" role="alert"></div>
           </div>
 
           <!-- Success view -->
@@ -700,7 +776,10 @@
             </div>
             <h3>Booking requested</h3>
             <p id="successMsg">Thanks! We've got your request and we'll reach out shortly to confirm a time.</p>
-            <button type="button" class="success__again" id="again">Book another service</button>
+            <div class="success__actions">
+              <a class="btn btn--primary" id="trackLink" href="/status.html">Track your booking</a>
+              <button type="button" class="success__again" id="again">Book another service</button>
+            </div>
           </div>
         </div>
       </div>
@@ -710,25 +789,21 @@
   <footer class="foot">
     <div class="wrap foot__inner">
       <span><span class="foot__brand">B&amp;K General Services</span> — Saratoga Springs, Utah</span>
-      <span>&copy; <span id="year"></span> B&amp;K General Services</span>
+      <span><a class="foot__link" href="/status.html">Track a booking</a> &nbsp;·&nbsp; &copy; <span id="year"></span></span>
     </div>
   </footer>
 
 <script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
   // ---- Config -------------------------------------------------------------
-  const SUPABASE_URL = "https://dcstdsibvywmythzkltn.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_GjzKPuQKqeUPkyaryyyuSg_Q7LbAra8"; // public-safe
-  const SQUARE_LINK  = "https://square.link/u/YTVI8cTL";
+  // Bookings are created server-side after email verification, so there's no
+  // Supabase client or key in here anymore — just calls to our own /api routes.
+  // Online payment now happens on the status page once you've quoted the job.
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  // ---- Small DOM helpers --------------------------------------------------
   const $  = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
   const state = { service: "Lawn Care", payment: "inperson" };
+  let pendingBooking = null; // kept so "Resend code" can reuse the same details
 
   // ---- Single-select button groups (services + payment) -------------------
   function wireGroup(selector, onSelect) {
@@ -741,96 +816,153 @@
       });
     });
   }
-
   wireGroup(".tile", (btn) => { state.service = btn.dataset.service; });
+  wireGroup(".pay__opt", (btn) => { state.payment = btn.dataset.payment; });
 
-  wireGroup(".pay__opt", (btn) => {
-    state.payment = btn.dataset.payment;
-    $("#submitLabel").textContent =
-      state.payment === "prepay" ? "Continue to payment" : "Request booking";
-  });
-
-  // ---- Validation ---------------------------------------------------------
+  // ---- Helpers ------------------------------------------------------------
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  function validate(data) {
-    if (!data.location) return "Please add the service address.";
-    if (!data.service_date) return "Please choose a preferred date.";
-    if (!data.email && !data.phone) return "Add a phone number or email so we can reach you.";
-    if (data.email && !EMAIL_RE.test(data.email)) return "That email doesn't look right — mind checking it?";
-    return null;
-  }
-
-  function showError(msg) {
-    const el = $("#formError");
-    el.textContent = msg;
-    el.classList.add("formerror--show");
-  }
-  function clearError() {
-    $("#formError").classList.remove("formerror--show");
-  }
-
-  // ---- Submit -------------------------------------------------------------
-  function setLoading(on) {
-    $("#submit").disabled = on;
-    $("#spinner").style.display = on ? "block" : "none";
-    $("#submitLabel").textContent = on
-      ? "Sending…"
-      : (state.payment === "prepay" ? "Continue to payment" : "Request booking");
-  }
-
-  async function handleSubmit() {
-    clearError();
-
-    const booking = {
+  function collectBooking() {
+    return {
       name:         $("#name").value.trim()     || null,
-      email:        $("#email").value.trim()    || null,
+      email:        $("#email").value.trim(),
       phone:        $("#phone").value.trim()    || null,
       service:      state.service,
       service_date: $("#date").value            || null,
       location:     $("#location").value.trim() || null,
       notes:        $("#notes").value.trim()    || null,
       payment:      state.payment,
-      status:       "pending",
     };
-
-    const problem = validate(booking);
-    if (problem) { showError(problem); return; }
-
-    setLoading(true);
-    const { error } = await supabase.from("bookings").insert([booking]);
-    setLoading(false);
-
-    if (error) {
-      console.error("Booking save failed:", error);
-      showError("Something went wrong saving your booking. Please try again in a moment.");
-      return;
-    }
-
-    if (booking.payment === "prepay") {
-      window.location.href = SQUARE_LINK;
-      return;
-    }
-
-    // Pay-in-person → inline confirmation
-    $("#successMsg").textContent =
-      `Thanks${booking.name ? ", " + booking.name : ""}! Your ${booking.service} request is in — we'll reach out shortly to confirm a time. Pay in person when the job's done.`;
-    $("#formView").style.display = "none";
-    $("#successView").classList.add("success--show");
-    $("#successView").scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  $("#submit").addEventListener("click", handleSubmit);
+  function validate(b) {
+    if (!b.location) return "Please add the service address.";
+    if (!b.service_date) return "Please choose a preferred date.";
+    if (!b.email) return "Please add your email — we'll send a code to confirm it.";
+    if (!EMAIL_RE.test(b.email)) return "That email doesn't look right — mind checking it?";
+    return null;
+  }
 
-  // ---- Reset for another booking -----------------------------------------
+  const showErr   = (sel, msg) => { const e = $(sel); e.textContent = msg; e.classList.add("formerror--show"); };
+  const clearErr  = (sel)      => $(sel).classList.remove("formerror--show");
+
+  function busy(btnSel, spinnerSel, on) {
+    $(btnSel).disabled = on;
+    $(spinnerSel).style.display = on ? "block" : "none";
+  }
+
+  async function postJSON(path, payload) {
+    const res = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Something went wrong. Please try again.");
+    return data;
+  }
+
+  // ---- Step 1 → 2 : send the code -----------------------------------------
+  async function sendCode() {
+    const data = await postJSON("/api/send-code", { booking: pendingBooking });
+    return data;
+  }
+
+  async function handleNext() {
+    clearErr("#formError");
+    pendingBooking = collectBooking();
+    const problem = validate(pendingBooking);
+    if (problem) { showErr("#formError", problem); return; }
+
+    $("#nextLabel").textContent = "Sending…";
+    busy("#next", "#spinner", true);
+    try {
+      await sendCode();
+      $("#verifyEmail").textContent = pendingBooking.email;
+      $("#code").value = "";
+      $("#verifyNote").textContent = "";
+      clearErr("#verifyError");
+      $("#formView").style.display = "none";
+      $("#verifyView").classList.add("verify--show");
+      $("#verifyView").scrollIntoView({ behavior: "smooth", block: "center" });
+      $("#code").focus();
+    } catch (e) {
+      showErr("#formError", e.message);
+    } finally {
+      busy("#next", "#spinner", false);
+      $("#nextLabel").textContent = "Next";
+    }
+  }
+
+  // ---- Step 3 : verify + book ---------------------------------------------
+  async function handleVerify() {
+    clearErr("#verifyError");
+    $("#verifyNote").textContent = "";
+    const code = $("#code").value.trim();
+    if (!/^\d{6}$/.test(code)) { showErr("#verifyError", "Enter the 6-digit code from your email."); return; }
+
+    $("#verifyLabel").textContent = "Booking…";
+    busy("#verify", "#vspinner", true);
+    try {
+      const result = await postJSON("/api/verify-and-book", { email: pendingBooking.email, code });
+
+      const ref = result.order_code;
+      const refText = ref ? ` Your reference is #${ref}.` : "";
+      const payText = pendingBooking.payment === "prepay"
+        ? "We'll review your request and send you a price quote — you can pay online from your booking status page once it's ready."
+        : "We'll reach out to confirm a time. Pay in person when the job's done.";
+      $("#successMsg").textContent =
+        `Thanks${pendingBooking.name ? ", " + pendingBooking.name : ""}! Your ${pendingBooking.service} request is in.${refText} ${payText}`;
+
+      const track = $("#trackLink");
+      if (ref) { track.href = `/status.html?ref=${encodeURIComponent(ref)}`; track.style.display = ""; }
+      else { track.style.display = "none"; }
+
+      $("#verifyView").classList.remove("verify--show");
+      $("#successView").classList.add("success--show");
+      $("#successView").scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (e) {
+      showErr("#verifyError", e.message);
+    } finally {
+      busy("#verify", "#vspinner", false);
+      $("#verifyLabel").textContent = "Verify & book";
+    }
+  }
+
+  // ---- Resend -------------------------------------------------------------
+  async function handleResend() {
+    clearErr("#verifyError");
+    $("#verifyNote").textContent = "Sending a new code…";
+    try {
+      await sendCode();
+      $("#verifyNote").textContent = "New code sent. Check your email.";
+    } catch (e) {
+      $("#verifyNote").textContent = "";
+      showErr("#verifyError", e.message);
+    }
+  }
+
+  // ---- Back + reset -------------------------------------------------------
+  function backToForm() {
+    $("#verifyView").classList.remove("verify--show");
+    $("#formView").style.display = "block";
+    $("#formView").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $("#next").addEventListener("click", handleNext);
+  $("#verify").addEventListener("click", handleVerify);
+  $("#resend").addEventListener("click", handleResend);
+  $("#back").addEventListener("click", backToForm);
+  $("#code").addEventListener("keydown", (e) => { if (e.key === "Enter") handleVerify(); });
+
   $("#again").addEventListener("click", () => {
-    ["name", "email", "phone", "date", "location", "notes"].forEach((id) => { $("#" + id).value = ""; });
+    ["name", "email", "phone", "date", "location", "notes", "code"].forEach((id) => { $("#" + id).value = ""; });
     $("#successView").classList.remove("success--show");
+    $("#verifyView").classList.remove("verify--show");
     $("#formView").style.display = "block";
     $("#formView").scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  // ---- Footer year --------------------------------------------------------
   $("#year").textContent = new Date().getFullYear();
 </script>
 </body>
