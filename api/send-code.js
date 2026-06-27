@@ -1,7 +1,8 @@
 // POST /api/send-code  { booking: {...} }
 // Generates a 6-digit code, stores it (hashed) with the pending booking, and
-// emails it via Resend. Runs server-side only — keys never reach the browser.
+// emails it via the Resend SDK. Runs server-side only.
 import crypto from "node:crypto";
+import { Resend } from "resend";
 
 const {
   RESEND_API_KEY,
@@ -10,6 +11,7 @@ const {
   SUPABASE_SERVICE_ROLE_KEY,
 } = process.env;
 
+const resend = new Resend(RESEND_API_KEY);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 
@@ -29,9 +31,11 @@ async function sb(path, init = {}) {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  if (!RESEND_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    return res.status(500).json({ error: "Server not configured (missing env vars)." });
-  }
+
+  // Explicit, readable checks so a missing/blank var is obvious in the response.
+  if (!RESEND_API_KEY) return res.status(500).json({ error: "Missing RESEND_API_KEY env var." });
+  if (!SUPABASE_URL) return res.status(500).json({ error: "Missing SUPABASE_URL env var." });
+  if (!SUPABASE_SERVICE_ROLE_KEY) return res.status(500).json({ error: "Missing SUPABASE_SERVICE_ROLE_KEY env var." });
 
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
@@ -62,28 +66,29 @@ export default async function handler(req, res) {
       body: JSON.stringify({ email, code_hash, booking: { ...booking, email }, expires_at }),
     });
 
-    const sent = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [email],
-        subject: `Your B&K verification code: ${code}`,
-        html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:8px">
-            <h2 style="color:#17211b;margin:0 0 6px">B&amp;K General Services</h2>
-            <p style="color:#333">Use this code to confirm your booking:</p>
-            <p style="font-size:34px;font-weight:bold;letter-spacing:8px;color:#17211b;margin:14px 0">${code}</p>
-            <p style="color:#6f6757;font-size:14px">This code expires in 10 minutes. If you didn't request it, you can ignore this email.</p>
-          </div>`,
-      }),
+    // Send via the Resend SDK (returns { data, error } instead of throwing).
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: `Your B&K verification code: ${code}`,
+      html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:8px">
+          <h2 style="color:#17211b;margin:0 0 6px">B&amp;K General Services</h2>
+          <p style="color:#333">Use this code to confirm your booking:</p>
+          <p style="font-size:34px;font-weight:bold;letter-spacing:8px;color:#17211b;margin:14px 0">${code}</p>
+          <p style="color:#6f6757;font-size:14px">This code expires in 10 minutes. If you didn't request it, you can ignore this email.</p>
+        </div>`,
     });
 
-    if (!sent.ok) {
-      return res.status(502).json({ error: "Couldn't send the code. Check the email address and try again." });
+    if (error) {
+      console.error("Resend error:", error);
+      // Surface Resend's real reason so it's visible in the Network response.
+      return res.status(502).json({ error: `Email failed: ${error.message || error.name || JSON.stringify(error)}` });
     }
 
     return res.status(200).json({ ok: true });
   } catch (e) {
-    return res.status(500).json({ error: "Something went wrong. Please try again." });
+    console.error("send-code crash:", e);
+    // Surface the real crash reason (e.g. a Supabase 401/403) for debugging.
+    return res.status(500).json({ error: `Server error: ${e.message}` });
   }
 }
