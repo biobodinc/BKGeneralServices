@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="logo.png" sizes="any" type="image/png">
+<link rel=""apple-touch-icon" sizes="180x180" href="appletouch.png" type="image/png">
+
 <style>
   :root {
     --ink:#17211b; --ink-soft:#24332a; --paper:#f6f2e9; --card:#fff;
@@ -92,9 +95,23 @@
   .statusbox { background:#faf7f0; border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:18px; }
   .statusbox h3 { font-size:17px; margin-bottom:5px; }
   .statusbox p { margin:0; color:var(--muted); font-size:14.5px; }
-  .quote { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; background:var(--ink); color:#fff; border-radius:12px; padding:18px 20px; margin-bottom:18px; }
+  .quote { background:var(--ink); color:#fff; border-radius:12px; padding:20px; margin-bottom:16px; text-align:center; }
   .quote__label { font-size:13px; color:var(--muted-ink); font-weight:600; }
-  .quote__price { font-family:"Bricolage Grotesque",sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.02em; }
+  .quote__price { font-family:"Bricolage Grotesque",sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.02em; margin-top:4px; }
+  .paybox { margin-bottom:18px; }
+  .paybox__note { font-size:14px; line-height:1.55; color:var(--muted); margin:0 0 14px; }
+  .paybox__note strong { color:var(--ink); }
+  .paybtns { display:flex; flex-direction:column; gap:10px; }
+  .paybtns .btn { width:100%; }
+  .btn--venmo { background:#3d95ce; color:#fff; }
+  .btn--venmo:hover { background:#347fb0; transform:translateY(-2px); }
+  .btn--cashapp { background:#00d632; color:#05331a; }
+  .btn--cashapp:hover { background:#00bf2d; transform:translateY(-2px); }
+  .btn--cash { background:transparent; border:1.5px solid var(--line); color:var(--ink); cursor:pointer; font-family:inherit; }
+  .btn--cash:hover { border-color:var(--ink); background:#faf7f0; }
+  .cash-note { display:none; margin-top:12px; padding:13px 15px; border-radius:11px; background:#e7efe9; border:1px solid #cfe0d4; color:#2f5d3e; font-size:14px; line-height:1.5; }
+  .cash-note--show { display:block; }
+  .cash-note strong { color:#17211b; }
   .meta-line { font-size:14px; color:var(--muted); margin-top:2px; }
   .actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:6px; }
 
@@ -178,10 +195,14 @@
 <script type="module">
   const $ = (s) => document.querySelector(s);
 
+  // 👇 Your payment handles (change here if they ever update)
+  const VENMO_URL = "https://venmo.com/u/bodlink007";
+  const CASHAPP_URL = "https://cash.app/$BPlayzGamezYT";
+
   // Status presentation + customer-facing messages
   const STATUS = {
     reviewing: { label: "Reviewing", cls: "b-reviewing", title: "We're reviewing your request", msg: "We'll work out the details and send you a price quote shortly. Check back soon." },
-    quoted:    { label: "Quoted",    cls: "b-quoted",    title: "Your quote is ready", msg: "Review the price below and pay online to lock in your booking." },
+    quoted:    { label: "Quoted",    cls: "b-quoted",    title: "Your quote is ready", msg: "Here's your price. Pay with Venmo or Cash App below to lock in your booking." },
     paid:      { label: "Paid",      cls: "b-paid",      title: "Payment received — thank you!", msg: "You're all set. We'll be in touch to confirm the schedule." },
     scheduled: { label: "Scheduled", cls: "b-scheduled", title: "Your service is scheduled", msg: "We've got you on the calendar. See you then!" },
     completed: { label: "Completed", cls: "b-completed", title: "All done", msg: "Thanks for choosing B&K General Services. We hope to help again soon." },
@@ -232,13 +253,24 @@
     if (norm(o.status) === "quoted" && price) {
       qb.innerHTML = `
         <div class="quote">
-          <div><div class="quote__label">Your quote</div><div class="quote__price">${price}</div></div>
-          ${o.payment_url ? `<a class="btn btn--pay" href="${o.payment_url}" target="_blank" rel="noreferrer">Pay now</a>` : ""}
+          <div class="quote__label">Your quote</div>
+          <div class="quote__price">${price}</div>
         </div>
-        ${o.payment_url ? "" : `<div class="statusbox"><p>We'll contact you to arrange payment.</p></div>`}`;
+        <div class="paybox">
+          <p class="paybox__note">Send <strong>${price}</strong> with an app below, and put your reference <strong>#${o.order_code}</strong> in the payment note so we can match it to your booking. Prefer cash? That works too.</p>
+          <div class="paybtns">
+            ${o.payment_url ? `<a class="btn btn--pay" href="${o.payment_url}" target="_blank" rel="noreferrer">Pay this exact amount →</a>` : ""}
+            <a class="btn btn--venmo" href="${VENMO_URL}" target="_blank" rel="noreferrer">Pay with Venmo</a>
+            <a class="btn btn--cashapp" href="${CASHAPP_URL}" target="_blank" rel="noreferrer">Pay with Cash App</a>
+            <button type="button" class="btn btn--cash" id="cashBtn">Pay in cash</button>
+          </div>
+          <div class="cash-note" id="cashNote">No problem — have <strong>${price}</strong> in cash ready when we arrive, and we'll collect it on the day.</div>
+        </div>`;
       qb.style.display = "block";
+      const cashBtn = $("#cashBtn");
+      if (cashBtn) cashBtn.addEventListener("click", () => $("#cashNote").classList.add("cash-note--show"));
     } else if (price && (norm(o.status) === "paid" || norm(o.status) === "scheduled" || norm(o.status) === "completed")) {
-      qb.innerHTML = `<div class="quote"><div><div class="quote__label">Total</div><div class="quote__price">${price}</div></div></div>`;
+      qb.innerHTML = `<div class="quote"><div class="quote__label">Total</div><div class="quote__price">${price}</div></div>`;
       qb.style.display = "block";
     } else {
       qb.innerHTML = "";
