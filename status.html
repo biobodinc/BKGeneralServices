@@ -8,9 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="icon" href="logo.png" sizes="any" type="image/png">
-<link rel=""apple-touch-icon" sizes="180x180" href="appletouch.png" type="image/png">
-
 <style>
   :root {
     --ink:#17211b; --ink-soft:#24332a; --paper:#f6f2e9; --card:#fff;
@@ -63,6 +60,11 @@
 
   .formerror { display:none; margin-top:15px; padding:12px 15px; border-radius:11px; background:#fdecea; border:1px solid #f3c7c2; color:var(--danger); font-size:14.5px; font-weight:600; }
   .formerror--show { display:block; }
+  .forgot { text-align:center; margin-top:16px; }
+  .linklike { background:transparent; border:none; cursor:pointer; font-family:inherit; font-weight:700; font-size:14px; color:var(--marigold-deep); padding:6px; }
+  .linklike:hover { color:var(--rust); text-decoration:underline; }
+  .recall-note { display:none; margin-top:14px; padding:13px 15px; border-radius:11px; background:#e7efe9; border:1px solid #cfe0d4; color:#2f5d3e; font-size:14px; line-height:1.5; text-align:center; }
+  .recall-note--show { display:block; }
 
   /* Result */
   .result { display:none; }
@@ -160,6 +162,10 @@
           <span id="checkLabel">Check status</span>
         </button>
         <div class="formerror" id="formError" role="alert"></div>
+        <div class="forgot">
+          <button type="button" class="linklike" id="forgotBtn">Forgot your reference number?</button>
+        </div>
+        <div class="recall-note" id="recallNote"></div>
       </div>
 
       <!-- Result -->
@@ -319,6 +325,38 @@
     $("#lookupPanel").style.display = "block";
     $("#ref").value = "";
   });
+
+  // Forgot reference number → email it to the address on file
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  async function recall() {
+    clearErr();
+    const email = $("#email").value.trim();
+    const note = $("#recallNote");
+    if (!EMAIL_RE.test(email)) {
+      note.classList.remove("recall-note--show");
+      showErr("Enter your email above first, then tap this and we'll send your reference number.");
+      return;
+    }
+    $("#forgotBtn").disabled = true;
+    note.textContent = "Sending…";
+    note.classList.add("recall-note--show");
+    try {
+      const res = await fetch("/api/recall-reference", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Something went wrong. Please try again.");
+      note.textContent = `If we have bookings for ${email}, we've emailed your reference number(s). Check your inbox (and spam).`;
+    } catch (e) {
+      note.classList.remove("recall-note--show");
+      showErr(e.message);
+    } finally {
+      $("#forgotBtn").disabled = false;
+    }
+  }
+  $("#forgotBtn").addEventListener("click", recall);
 </script>
 </body>
 </html>
